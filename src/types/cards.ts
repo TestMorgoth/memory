@@ -1,0 +1,16 @@
+export type CardCategory = 'frisk';
+
+export type CardFace = {
+  pairId: string;
+  title: string;
+  image: string; // asset frontale unico della coppia, rapporto 3:4
+  category: CardCategory;
+};
+
+export type BoardCard = CardFace & {
+  boardId: string;
+  isFlipped: boolean;
+  isMatched: boolean;
+};
+
+export const CARD_ASPECT_RATIO = 3 / 4;

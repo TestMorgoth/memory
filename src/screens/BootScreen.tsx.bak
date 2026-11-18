@@ -1,0 +1,7 @@
+export function BootScreen() {
+  return (
+    <div className="flex h-screen items-center justify-center bg-brand-dark text-4xl font-bold text-white">
+      Caricamento…
+    </div>
+  );
+}

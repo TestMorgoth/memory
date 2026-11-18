@@ -1,0 +1,110 @@
+import { createBoardForLevel } from '../lib/deck';
+import type { GameState } from '../types/game';
+import type { GameAction } from './game-actions';
+import { initialGameState } from './initial-state';
+
+export function gameReducer(state: GameState, action: GameAction): GameState {
+  switch (action.type) {
+    case 'BOOT_READY':
+      return { ...state, bootReady: true, screen: 'attract' };
+
+    case 'GO_TO_ATTRACT':
+      return { ...initialGameState, bootReady: true, screen: 'attract' };
+
+    case 'START_GAME':
+      return { ...state, screen: 'intro', result: null, attempts: 0, matches: 0, totalElapsedSec: 0 };
+
+    case 'START_LEVEL': {
+      const level = state.levels[action.levelIndex];
+      return {
+        ...state,
+        screen: 'playing',
+        currentLevelIndex: action.levelIndex,
+        board: createBoardForLevel(level),
+        flippedIds: [],
+        matches: 0,
+        inputLocked: false,
+        levelRemainingSec: level.timeLimitSec,
+      };
+    }
+
+    case 'FLIP_CARD': {
+      if (state.inputLocked || state.flippedIds.length >= 2) return state;
+
+      const card = state.board.find((item) => item.boardId === action.boardId);
+      if (!card || card.isMatched || card.isFlipped) return state;
+
+      const nextBoard = state.board.map((item) =>
+        item.boardId === action.boardId ? { ...item, isFlipped: true } : item,
+      );
+      const nextFlippedIds = [...state.flippedIds, action.boardId];
+
+      return {
+        ...state,
+        board: nextBoard,
+        flippedIds: nextFlippedIds,
+        attempts: nextFlippedIds.length === 2 ? state.attempts + 1 : state.attempts,
+        inputLocked: nextFlippedIds.length === 2,
+      };
+    }
+
+    case 'RESOLVE_MATCH': {
+      if (state.flippedIds.length !== 2) return state;
+      const [firstId, secondId] = state.flippedIds;
+      const nextBoard = state.board.map((item) =>
+        item.boardId === firstId || item.boardId === secondId ? { ...item, isMatched: true } : item,
+      );
+
+      return {
+        ...state,
+        board: nextBoard,
+        flippedIds: [],
+        inputLocked: false,
+        matches: state.matches + 1,
+      };
+    }
+
+    case 'RESOLVE_MISMATCH': {
+      const nextBoard = state.board.map((item) =>
+        state.flippedIds.includes(item.boardId) ? { ...item, isFlipped: false } : item,
+      );
+
+      return {
+        ...state,
+        board: nextBoard,
+        flippedIds: [],
+        inputLocked: false,
+      };
+    }
+
+    case 'TICK': {
+      if (state.screen !== 'playing') return state;
+      if (state.levelRemainingSec <= 1) {
+        return { ...state, levelRemainingSec: 0, screen: 'result', result: 'fail' };
+      }
+      return {
+        ...state,
+        levelRemainingSec: state.levelRemainingSec - 1,
+        totalElapsedSec: state.totalElapsedSec + 1,
+      };
+    }
+
+    case 'NEXT_LEVEL':
+      return {
+        ...state,
+        screen: 'transition',
+      };
+
+    case 'GAME_SUCCESS':
+      return { ...state, screen: 'result', result: 'success' };
+
+    case 'GAME_FAIL':
+      return { ...state, screen: 'result', result: 'fail' };
+
+    case 'RESET_ALL':
+      return { ...initialGameState, bootReady: true, screen: 'attract' };
+
+    default:
+      return state;
+  }
+}

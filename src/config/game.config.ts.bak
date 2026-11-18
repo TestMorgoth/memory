@@ -1,0 +1,8 @@
+export const GAME_CONFIG = {
+  mismatchHideDelayMs: 900,
+  matchResolveDelayMs: 350,
+  transitionDurationMs: 1800,
+  finalAutoResetMs: 12000,
+  resultTapResetEnabled: true,
+  enableAudio: false,
+} as const;

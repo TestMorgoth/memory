@@ -1,0 +1,59 @@
+import { AttemptsCounter } from '../components/game/AttemptsCounter';
+import { GameBoard } from '../components/game/GameBoard';
+import { LevelBadge } from '../components/game/LevelBadge';
+import { TimerBar } from '../components/game/TimerBar';
+import type { BoardCard } from '../types/cards';
+import type { LevelConfig } from '../types/game';
+
+type Props = {
+  level: LevelConfig;
+  cards: BoardCard[];
+  attempts: number;
+  remainingSec: number;
+  inputLocked: boolean;
+  onCardClick: (boardId: string) => void;
+};
+
+export function GameScreen({
+  level,
+  cards,
+  attempts,
+  remainingSec,
+  inputLocked,
+  onCardClick,
+}: Props) {
+  return (
+    <div className="relative flex h-screen flex-col overflow-hidden bg-brand-dark text-white">
+      <div
+        className="absolute inset-0 bg-cover bg-center opacity-30"
+        style={{ backgroundImage: "url('/assets/brand/bg-game.jpg')" }}
+        aria-hidden="true"
+      />
+      <div
+        className="absolute inset-0 bg-gradient-to-b from-brand-dark/55 to-brand-dark/90"
+        aria-hidden="true"
+      />
+
+      <div className="relative z-10 flex h-full flex-col px-4 py-4 md:px-6 md:py-6">
+        <div className="mb-4 flex items-center justify-between gap-4">
+          <LevelBadge title={level.title} />
+          <AttemptsCounter attempts={attempts} />
+        </div>
+
+        <div className="mb-4">
+          <TimerBar remainingSec={remainingSec} totalSec={level.timeLimitSec} />
+        </div>
+
+        <div className="min-h-0 flex-1">
+          <GameBoard
+            cards={cards}
+            rows={level.rows}
+            cols={level.cols}
+            inputLocked={inputLocked}
+            onCardClick={onCardClick}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}

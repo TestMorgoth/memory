@@ -1,0 +1,30 @@
+import { useEffect } from 'react';
+import { GAME_CONFIG } from '../config/game.config';
+
+type Props = {
+  title: string;
+  onDone: () => void;
+};
+
+export function TransitionScreen({ title, onDone }: Props) {
+  useEffect(() => {
+    const timer = window.setTimeout(onDone, GAME_CONFIG.transitionDurationMs);
+    return () => window.clearTimeout(timer);
+  }, [onDone]);
+
+  return (
+    <div className="relative flex h-screen items-center justify-center overflow-hidden bg-brand-dark text-center text-white">
+      <div
+        className="absolute inset-0 bg-cover bg-center opacity-25"
+        style={{ backgroundImage: "url('/assets/brand/bg-game.png')" }}
+        aria-hidden="true"
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-brand-dark/50 to-brand-dark/90" aria-hidden="true" />
+
+      <div className="relative z-10 rounded-kiosk border border-white/15 bg-black/25 px-10 py-12 shadow-kiosk backdrop-blur-sm">
+        <div className="text-2xl uppercase tracking-[0.3em] opacity-70">Livello</div>
+        <div className="mt-4 text-6xl font-black md:text-7xl">{title}</div>
+      </div>
+    </div>
+  );
+}

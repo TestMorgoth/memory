@@ -1,0 +1,26 @@
+import type { BoardCard } from '../../types/cards';
+import { MemoryCard } from './MemoryCard';
+
+type Props = {
+  cards: BoardCard[];
+  rows: number;
+  cols: number;
+  inputLocked: boolean;
+  onCardClick: (boardId: string) => void;
+};
+
+export function GameBoard({ cards, rows, cols, inputLocked, onCardClick }: Props) {
+  return (
+    <div
+      className="grid h-full w-full gap-4"
+      style={{
+        gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+        gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
+      }}
+    >
+      {cards.map((card) => (
+        <MemoryCard key={card.boardId} card={card} disabled={inputLocked} onClick={onCardClick} />
+      ))}
+    </div>
+  );
+}

@@ -1,0 +1,88 @@
+import { useCallback, useEffect, useMemo, useReducer } from 'react';
+import { GAME_CONFIG } from '../config/game.config';
+import { gameReducer } from '../engine/game-reducer';
+import { initialGameState } from '../engine/initial-state';
+import {
+  areTwoCardsFlipped,
+  getFlippedCards,
+  getCurrentLevel,
+  isCurrentLevelCompleted,
+} from '../engine/selectors';
+
+export function useGameSession() {
+  const [state, dispatch] = useReducer(gameReducer, initialGameState);
+
+  const currentLevel = useMemo(() => getCurrentLevel(state), [state]);
+
+  useEffect(() => {
+    if (!areTwoCardsFlipped(state)) return;
+
+    const [first, second] = getFlippedCards(state);
+    if (!first || !second) return;
+
+    if (first.pairId === second.pairId) {
+      const timer = window.setTimeout(
+        () => dispatch({ type: 'RESOLVE_MATCH' }),
+        GAME_CONFIG.matchResolveDelayMs,
+      );
+      return () => window.clearTimeout(timer);
+    }
+
+    const timer = window.setTimeout(
+      () => dispatch({ type: 'RESOLVE_MISMATCH' }),
+      GAME_CONFIG.mismatchHideDelayMs,
+    );
+
+    return () => window.clearTimeout(timer);
+  }, [state]);
+
+  useEffect(() => {
+    if (state.screen !== 'playing') return;
+    if (!isCurrentLevelCompleted(state)) return;
+
+    const nextLevelIndex = state.currentLevelIndex + 1;
+
+    if (nextLevelIndex < state.levels.length) {
+      dispatch({ type: 'START_TRANSITION', levelIndex: nextLevelIndex });
+      return;
+    }
+
+    dispatch({ type: 'GAME_SUCCESS' });
+  }, [state]);
+
+  const goToAttract = useCallback(() => dispatch({ type: 'GO_TO_ATTRACT' }), []);
+  const startGame = useCallback(() => dispatch({ type: 'START_GAME' }), []);
+  const startTransition = useCallback(
+    (levelIndex: number) => dispatch({ type: 'START_TRANSITION', levelIndex }),
+    [],
+  );
+  const startLevel = useCallback(
+    (levelIndex: number) => dispatch({ type: 'START_LEVEL', levelIndex }),
+    [],
+  );
+  const flipCard = useCallback(
+    (boardId: string) => dispatch({ type: 'FLIP_CARD', boardId }),
+    [],
+  );
+  const tick = useCallback(() => dispatch({ type: 'TICK' }), []);
+  const bootReady = useCallback(() => dispatch({ type: 'BOOT_READY' }), []);
+
+  const actions = useMemo(
+    () => ({
+      goToAttract,
+      startGame,
+      startTransition,
+      startLevel,
+      flipCard,
+      tick,
+      bootReady,
+    }),
+    [goToAttract, startGame, startTransition, startLevel, flipCard, tick, bootReady],
+  );
+
+  return {
+    state,
+    currentLevel,
+    actions,
+  };
+}

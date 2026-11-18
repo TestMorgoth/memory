@@ -1,0 +1,20 @@
+import { ResultSummary } from '../components/result/ResultSummary';
+
+type Props = {
+  message: string;
+  totalElapsedSec: number;
+  attempts: number;
+  onReset: () => void;
+};
+
+export function ResultScreen({ message, totalElapsedSec, attempts, onReset }: Props) {
+  return (
+    <button
+      type="button"
+      onClick={onReset}
+      className="flex h-screen w-screen items-center justify-center bg-[url('/assets/brand/bg-result.jpg')] bg-cover bg-center px-8"
+    >
+      <ResultSummary totalElapsedSec={totalElapsedSec} attempts={attempts} message={message} />
+    </button>
+  );
+}

@@ -1,0 +1,19 @@
+import { CARDS_CATALOG } from '../data/cards.catalog';
+import type { BoardCard } from '../types/cards';
+import type { LevelConfig } from '../types/game';
+import { shuffleArray } from './shuffle';
+
+export function createBoardForLevel(level: LevelConfig): BoardCard[] {
+  const pairIds = Array.from(new Set(CARDS_CATALOG.map((card) => card.pairId))).slice(0, level.pairs);
+
+  const deck = CARDS_CATALOG
+    .filter((card) => pairIds.includes(card.pairId))
+    .map<BoardCard>((card, index) => ({
+      ...card,
+      boardId: `${card.id}-${index}-${crypto.randomUUID()}`,
+      isFlipped: false,
+      isMatched: false,
+    }));
+
+  return shuffleArray(deck);
+}

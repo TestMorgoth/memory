@@ -1,0 +1,9 @@
+import { CARD_BACK_IMAGE, CARDS_CATALOG } from './cards.catalog';
+
+export const PRELOAD_MANIFEST = [
+  '/assets/brand/bg-attract.png',
+  '/assets/brand/bg-game.png',
+  '/assets/brand/bg-result.png',
+  CARD_BACK_IMAGE,
+  ...CARDS_CATALOG.map((card) => card.image),
+];

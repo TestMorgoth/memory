@@ -1,0 +1,13 @@
+export const FINAL_MESSAGES = {
+  successFast: [
+    'Memoria glaciale. Più fresco di così si diventa una FRISK.',
+    'Hai servito match perfetti. Solo freschezza.',
+  ],
+  successSlow: [
+    'Hai vinto, ma con più suspense di un tie-break infinito.',
+  ],
+  fail: [
+    'Game, set… forse ti serviva una FRISK in più.',
+    'Memoria in pausa. Freschezza da ricaricare.',
+  ],
+} as const;
